@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afya Chain Demo with Consent</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <style>
+        .loader {
+            border-top-color: #3B82F6;
+            animation: spinner 1.5s linear infinite;
+        }
+
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+    <div class="container mx-auto p-4">
+        <!-- Login Section -->
+        <div id="loginSection" class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8 mt-10">
+            <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Afya Chain Demo</h1>
+            <input type="text" id="username" placeholder="Username" class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-6 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="login()" class="w-full bg-blue-500 text-white p-3 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105">Login</button>
+        </div>
+
+        <!-- Main Section -->
+        <div id="mainSection" class="hidden">
+            <h1 class="text-4xl font-bold mb-8 text-center text-blue-600">Patient Data Management</h1>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-6 text-blue-500">Add New Patient</h2>
+                    <input type="text" id="patientName" placeholder="Patient Name" class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="healthHistory" placeholder="Health History" class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="drugs" placeholder="Drugs" class="w-full p-3 mb-6 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="addPatient()" class="w-full bg-green-500 text-white p-3 rounded-md hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105">Add Patient</button>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-6 text-blue-500">Patient List</h2>
+                    <ul id="patientList" class="space-y-2"></ul>
+                </div>
+            </div>
+
+            <div id="patientDetailsSection" class="hidden mt-8 bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-6 text-blue-500">Patient Details</h2>
+                <div id="patientDetails" class="mb-6"></div>
+                <button onclick="hidePatientDetails()" class="bg-gray-500 text-white p-3 rounded-md hover:bg-gray-600 transition duration-300 ease-in-out transform hover:scale-105">Back to List</button>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button onclick="logout()" class="bg-red-500 text-white p-3 rounded-md hover:bg-red-600 transition duration-300 ease-in-out transform hover:scale-105">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Consent Modal -->
+    <div id="consentModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-lg shadow-lg z-50 overflow-y-auto">
+            <div class="modal-content py-6 text-left px-8">
+                <div class="flex justify-between items-center pb-3">
+                    <p class="text-2xl font-bold text-blue-600">Consent Required</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="closeConsentModal()">
+                        <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="mb-6">Cannot access data, user has not consented.</p>
+                <div id="qrCodeContainer" class="mb-6 text-center"></div>
+                <div class="mt-4">
+                    <button id="requestConsentBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out transform hover:scale-105">
+                        Ask User for Consent
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div id="otpModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-lg shadow-lg z-50 overflow-y-auto">
+            <div class="modal-content py-6 text-left px-8">
+                <div class="flex justify-between items-center pb-3">
+                    <p class="text-2xl font-bold text-blue-600">Enter OTP</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="closeOtpModal()">
+                        <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <p class="mb-6">Enter the unique OTP sent to your phone:</p>
+                <input type="text" id="otpInput" placeholder="Enter OTP" class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="verifyOtp()" class="w-full bg-green-500 text-white p-3 rounded-md hover:bg-green-600 transition duration-300 ease-in-out transform hover:scale-105">Verify OTP</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dummyPatients = [
+            { name: "John Doe", healthHistory: "Hypertension, Diabetes", drugs : "Lisinopril, Metformin", hasConsented: true },
+            { name: "Jane Smith", healthHistory: "Asthma, Chronic heart pains", drugs: "Albuterol", hasConsented: true },
+            { name: "Bob Johnson", healthHistory: "Arthritis, Vitamin D deficiency", drugs: "Ibuprofen", hasConsented: false },
+            { name: "Alice Brown", healthHistory: "Migraines", drugs: "Sumatriptan", hasConsented: false }
+        ];
+
+        let patients = [...dummyPatients];
+        let currentPatientIndex = -1;
+
+        function login() {
+            $("#loginSection").hide();
+            $("#mainSection").show();
+            loadPatients();
+        }
+
+        function logout() {
+            $("#mainSection").hide();
+            $("#loginSection").show();
+            $("#patientList").empty();
+            $("#patientDetailsSection").hide();
+        }
+
+        function loadPatients() {
+            const patientList = $("#patientList");
+            patientList.empty();
+            patients.forEach((patient, index) => {
+                patientList.append(`
+                    <li class="border-b py-2">
+                        <div class="flex justify-between items-center">
+                            <span>${patient.name}</span>
+                            <button onclick="viewPatientDetails(${index})" class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105">View Details</button>
+                            ${!patient.hasConsented ? `<button onclick="showConsentModal(${index})" class="bg-yellow-500 text-white px-2 py-1 rounded-md hover:bg-yellow-600 transition duration-300 ease-in-out transform hover:scale-105">Request Consent</button>` : ''}
+                        </div>
+                    </li>
+                `);
+            });
+        }
+
+        function viewPatientDetails(index) {
+            currentPatientIndex = index;
+            const patient = patients[index];
+            $("#patientDetails").html(`
+                <p><strong>Name:</strong> ${patient.name}</p>
+                <p><strong>Health History:</strong> ${patient.healthHistory}</p>
+                <p><strong>Drugs:</strong> ${patient.drugs}</p>
+            `);
+            $("#patientDetailsSection").show();
+        }
+
+        function hidePatientDetails() {
+            $("#patientDetailsSection").hide();
+        }
+
+        function addPatient() {
+            const name = $("#patientName").val();
+            const healthHistory = $("#healthHistory").val();
+            const drugs = $("#drugs").val();
+
+            if (name && healthHistory && drugs) {
+                patients.push({ name, healthHistory, drugs, hasConsented: false });
+                alert("Patient added successfully.");
+                $("#patientName").val('');
+                $("#healthHistory").val('');
+                $("#drugs").val('');
+                loadPatients();
+            } else {
+                alert("Please fill in all fields.");
+            }
+        }
+
+        function showConsentModal(patientIndex) {
+            $("#consentModal").removeClass("opacity-0 pointer-events-none");
+            currentPatientIndex = patientIndex;
+
+            QRCode.toCanvas(document.getElementById('qrCodeContainer'), 'Consent URL or Data', function (error) {
+                if (error) console.error(error);
+            });
+
+            $("#requestConsentBtn").off("click").on("click", () => {
+                $("#consentModal").addClass("opacity-0 pointer-events-none");
+                $("#otpModal").removeClass("opacity-0 pointer-events-none");
+            });
+        }
+
+        function closeConsentModal() {
+            $("#consentModal").addClass("opacity-0 pointer-events-none");
+        }
+
+        function closeOtpModal() {
+            $("#otpModal").addClass("opacity-0 pointer-events-none");
+        }
+
+        function verifyOtp() {
+            // Simulate OTP verification
+            const otp = $("#otpInput").val();
+            if (otp) {
+                // OTP verification logic here
+                patients[currentPatientIndex].hasConsented = true;
+                alert("OTP verified. Consent granted.");
+                $("#otpInput").val('');
+                closeOtpModal();
+                loadPatients();
+            } else {
+                alert("Please enter the OTP.");
+            }
+        }
+
+        $(document).ready(function() {
+            $(".modal-close").on("click", function() {
+                closeConsentModal();
+                closeOtpModal();
+            });
+        });
+    </script>
+</body>
+</html>

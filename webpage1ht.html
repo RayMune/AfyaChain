@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Data Monetization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        h3 {
+            color: #333;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input[type="text"], input[type="password"], input[type="checkbox"] {
+            padding: 10px;
+            width: calc(100% - 24px);
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        form {
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+        }
+        .form-group p {
+            margin: 5px 0;
+        }
+        #health-records, #sell-data, #transaction-status {
+            margin-top: 20px;
+        }
+        #sell-data, #transaction-status {
+            background-color: #e8f5e9;
+            border: 1px solid #d0f0c0;
+            padding: 20px;
+            border-radius: 4px;
+        }
+        #transaction-status {
+            background-color: #d0f0c0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Welcome to the Data Monetization Platform</h2>
+
+    <!-- Sign In Section -->
+    <div id="sign-in-section">
+        <h3>Sign In</h3>
+        <form id="sign-in-form">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="button" onclick="signInAsPatient()">Sign In</button>
+        </form>
+    </div>
+
+    <!-- Health Records Section -->
+    <div id="health-records" class="hidden">
+        <h3>Your Health Records</h3>
+        <p>Review and choose which data to anonymize and sell:</p>
+        <form id="record-form">
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="record" value="Blood Pressure"> Blood Pressure (120/80 mmHg)
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="record" value="Blood Sugar"> Blood Sugar (110 mg/dL)
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="record" value="Cholesterol"> Cholesterol (190 mg/dL)
+                </label>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="record" value="Medical History"> Medical History (Heart Disease)
+                </label>
+            </div>
+            <button type="button" onclick="anonymizeAndSellData()">Anonymize and Sell Data</button>
+        </form>
+    </div>
+
+    <!-- Selling Data and Transaction Status -->
+    <div id="sell-data" class="hidden">
+        <h3>Data Submitted for Sale</h3>
+        <p>Your selected data has been anonymized and sent to the marketplace.</p>
+    </div>
+
+    <div id="transaction-status" class="hidden">
+        <h3>Transaction Successful</h3>
+        <p>You have been compensated for your data. Thank you!</p>
+    </div>
+</div>
+
+<script>
+// Dummy patient sign-in function
+function signInAsPatient() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (username && password) {
+        document.getElementById('sign-in-section').classList.add('hidden');
+        document.getElementById('health-records').classList.remove('hidden');
+    } else {
+        alert('Please enter a valid username and password.');
+    }
+}
+
+// Function to simulate anonymizing and selling data
+function anonymizeAndSellData() {
+    const form = document.getElementById('record-form');
+    const selectedData = [];
+    
+    // Get selected health records
+    form.querySelectorAll('input[name="record"]:checked').forEach((input) => {
+        selectedData.push(input.value);
+    });
+
+    if (selectedData.length === 0) {
+        alert('Please select at least one health record to sell.');
+        return;
+    }
+
+    console.log("Anonymized data:", selectedData);
+
+    // Hide health records section and show sell data section
+    document.getElementById('health-records').classList.add('hidden');
+    document.getElementById('sell-data').classList.remove('hidden');
+
+    // Simulate the sale and show transaction status
+    setTimeout(() => {
+        document.getElementById('sell-data').classList.add('hidden');
+        document.getElementById('transaction-status').classList.remove('hidden');
+    }, 2000); // Simulating transaction delay
+}
+</script>
+
+</body>
+</html>
