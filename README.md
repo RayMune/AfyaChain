@@ -35,10 +35,13 @@ Payment Gateway: M-Pesa Daraja API
 APIs: ChainSafe for storage of encrypted patient records, Privado.id for age verification
 How It Works
 Patient Data Upload: Patients upload their medical history and data via the AfyaChain platform. The data is encrypted and stored using ChainSafe.
+
 Tokenization: A token representing the patient’s data is minted on zkSync. This token can be transferred to healthcare providers when access is granted.
 Doctor Requests Access: A doctor can request access to a patient’s data by initiating a smart contract, where the patient has to provide consent.
+
 Consent Management: Patients receive access requests and can approve or reject them. Once approved, the doctor receives a token granting access to the patient’s encrypted records.
 M-Pesa Payment Integration: Transactions, such as consulting fees, are handled via M-Pesa through zkSync Paymasters, which eliminates the need for holding Ethereum.
+
 Getting Started
 Prerequisites
 Python 3.x
@@ -54,10 +57,13 @@ Copy code
 git clone https://github.com/your-username/afya-chain.git
 Install the required dependencies:
 
+
+
 bash
 Copy code
 pip install -r requirements.txt
 Set up environment variables for your API keys (M-Pesa, ChainSafe, zkSync):
+
 
 bash
 Copy code
@@ -66,6 +72,7 @@ export MPESA_CONSUMER_SECRET=your_consumer_secret
 export CHAINSYNC_API_URL=your_chainsafe_api_url
 export ZKSYNC_PRIVATE_KEY=your_zksync_private_key
 Run the Flask server:
+
 
 bash
 Copy code
